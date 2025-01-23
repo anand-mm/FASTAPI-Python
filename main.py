@@ -1,8 +1,17 @@
+from typing import Optional
 from fastapi import FastAPI
 
 from enum import Enum
 
+from pydantic import BaseModel
+
 app = FastAPI()
+
+class Item(BaseModel):
+    name: str
+    description: Optional[str] = None
+    price : float
+    tax: Optional[float] = None
 
 
 class ModelName(str,Enum):
@@ -17,6 +26,14 @@ def home():
 @app.get("/details/{name}")
 async def details(name: str):
     return {"message": f"Hello {name}"}
+
+@app.post("/items/")
+async def create_item(item: Item):
+    return item
+
+@app.put("/items/{item_id}")
+async def update_item(item_id:int ,item:Item):
+    return {"item_id": item_id, **item.model_dump()}
 
 @app.get("/items/{item_id}")
 def read_item(item_id: int, q: str = None):
